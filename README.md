@@ -74,3 +74,4 @@ Todos os componentes são construídos com React e estilizados usando Tailwind C
 * Novos recursos, incluindo barra lateral recolhível, telas de bate-papo e calendário
 * Autenticação redesenhada usando o App Router do Next.js e ações de servidor
 * Visualização de dados atualizada usando o ApexCharts para React
+# kairos-erp
