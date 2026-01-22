@@ -2,7 +2,11 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
+<<<<<<< HEAD
 // Interface definida para evitar erros de tipagem no VS Code
+=======
+// Definindo a estrutura do usuário para evitar o erro 'any'
+>>>>>>> fac219cd88042150cf375520ed85a8baec694f27
 export interface User {
     id: string;
     name: string;
@@ -34,6 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
+<<<<<<< HEAD
     /**
      * Função para buscar dados atualizados do MySQL.
      * Resolve o erro de 'fetchUserData is declared but never read'.
@@ -91,6 +96,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         setLoading(false);
     }, []); // Isso roda uma vez quando o app abre
+=======
+    useEffect(() => {
+        // Persistência: Recupera o usuário do localStorage ao carregar a página
+        const savedUser = localStorage.getItem("kairos_user");
+        if (savedUser) {
+        try {
+            setUser(JSON.parse(savedUser));
+        } catch (error) {
+            console.error("Erro ao carregar sessão:", error);
+        }
+        }
+        setLoading(false);
+    }, []);
+>>>>>>> fac219cd88042150cf375520ed85a8baec694f27
 
     const login = (userData: User) => {
         setUser(userData);
@@ -104,9 +123,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         router.push("/signin");
     };
 
+<<<<<<< HEAD
     return (
         <AuthContext.Provider value={{ user, login, logout, loading }}>
             {children}
+=======
+    // Dentro do seu AuthProvider
+    const fetchUserData = async (email: string) => {
+        try {
+            const res = await fetch(`/api/user/profile?email=${email}`);
+            const data = await res.json();
+            if (res.ok) {
+            // Aqui você atualiza o estado do usuário com os dados REAIS do banco
+            setUser({
+                id: data.id,
+                name: data.nome,
+                lastName: data.sobrenome,
+                email: data.email,
+                telefone: data.telefone,
+                cnpj: data.cnpj,
+                profile_photo: data.profile_photo,
+                rua: data.rua,
+                numero: data.numero,
+                bairro: data.bairro,
+                cep: data.cep,
+                cidade: data.cidade,
+                estado: data.estado,
+                pais: data.pais,
+            });
+            }
+        } catch (error) {
+            console.error("Erro ao carregar dados do banco:", error);
+        }
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        {children}
+>>>>>>> fac219cd88042150cf375520ed85a8baec694f27
         </AuthContext.Provider>
     );
 };

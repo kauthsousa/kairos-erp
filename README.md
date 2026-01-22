@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 # kairos-erp
 
+=======
+>>>>>>> fac219cd88042150cf375520ed85a8baec694f27
 # TailAdmin Next.js - Modelo de Painel Administrativo Gratuito para Next.js e Tailwind
 
 O TailAdmin é um modelo de painel administrativo gratuito e de código aberto, desenvolvido com **Next.js e Tailwind CSS**, que oferece aos desenvolvedores tudo o que precisam para criar uma solução completa e orientada a dados para back-end, dashboard ou painel administrativo, ideal para qualquer tipo de projeto web.
@@ -73,5 +76,9 @@ Todos os componentes são construídos com React e estilizados usando Tailwind C
 * Melhoria na responsividade e acessibilidade
 * Novos recursos, incluindo barra lateral recolhível, telas de bate-papo e calendário
 * Autenticação redesenhada usando o App Router do Next.js e ações de servidor
+<<<<<<< HEAD
 * Visualização de dados atualizada usando o ApexCharts para React
 # kairos-erp
+=======
+* Visualização de dados atualizada usando o ApexCharts para React
+>>>>>>> fac219cd88042150cf375520ed85a8baec694f27
