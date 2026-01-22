@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import PageBreadcrumb from "../../../../components/common/PageBreadCrumb";
 import Link from "next/link";
 import Image from "next/image";
-import { useAuth } from "../../../../context/AuthContext"; // Certifique-se que o caminho está correto
+import { useAuth } from "@/context/AuthContext"; // Certifique-se que o caminho está correto
 
 interface Cliente {
     id: number;

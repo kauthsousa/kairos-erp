@@ -1,12 +1,7 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-<<<<<<< HEAD
-// Interface definida para evitar erros de tipagem no VS Code
-=======
-// Definindo a estrutura do usuário para evitar o erro 'any'
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
 export interface User {
     id: string;
     name: string;
@@ -29,6 +24,7 @@ interface AuthContextType {
     loading: boolean;
     login: (userData: User) => void;
     logout: () => void;
+    refreshUser: () => Promise<void>; // Adicionado para permitir atualizar os dados manualmente
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,18 +34,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
-<<<<<<< HEAD
-    /**
-     * Função para buscar dados atualizados do MySQL.
-     * Resolve o erro de 'fetchUserData is declared but never read'.
-     */
-    const fetchUserData = async (email: string) => {
+    // Função para buscar dados REAIS do banco de dados
+    const fetchUserData = useCallback(async (email: string) => {
         try {
             const res = await fetch(`/api/user/profile?email=${email}`);
             const data = await res.json();
             
             if (res.ok) {
-                // Mapeamento: Banco (data.nome) -> Interface (name)
                 const updatedUser: User = {
                     id: data.id,
                     name: data.nome || "",
@@ -68,48 +59,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 };
                 
                 setUser(updatedUser);
-                // Atualiza o storage com os dados completos para persistência
                 localStorage.setItem("kairos_user", JSON.stringify(updatedUser));
             }
         } catch (error) {
             console.error("Erro ao sincronizar dados com o banco:", error);
         }
-    };
-
-    /**
-     * Efeito de inicialização: Recupera a sessão e busca dados frescos no banco.
-     */
-    useEffect(() => {
-        const savedUser = localStorage.getItem("kairos_user");
-        if (savedUser) {
-            try {
-                const parsedUser = JSON.parse(savedUser);
-                setUser(parsedUser);
-                
-                // ESSA LINHA FAZ A BUSCA ACONTECER:
-                if (parsedUser.email) {
-                    fetchUserData(parsedUser.email);
-                }
-            } catch (error) {
-                console.error("Erro ao carregar sessão:", error);
-            }
-        }
-        setLoading(false);
-    }, []); // Isso roda uma vez quando o app abre
-=======
-    useEffect(() => {
-        // Persistência: Recupera o usuário do localStorage ao carregar a página
-        const savedUser = localStorage.getItem("kairos_user");
-        if (savedUser) {
-        try {
-            setUser(JSON.parse(savedUser));
-        } catch (error) {
-            console.error("Erro ao carregar sessão:", error);
-        }
-        }
-        setLoading(false);
     }, []);
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
+
+    // Carregamento inicial da sessão
+    useEffect(() => {
+        const initializeAuth = async () => {
+            const savedUser = localStorage.getItem("kairos_user");
+            if (savedUser) {
+                try {
+                    const parsedUser = JSON.parse(savedUser);
+                    setUser(parsedUser);
+                    
+                    if (parsedUser.email) {
+                        await fetchUserData(parsedUser.email);
+                    }
+                } catch (error) {
+                    console.error("Erro ao carregar sessão:", error);
+                    localStorage.removeItem("kairos_user");
+                }
+            }
+            setLoading(false);
+        };
+
+        initializeAuth();
+    }, [fetchUserData]);
 
     const login = (userData: User) => {
         setUser(userData);
@@ -123,50 +101,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         router.push("/signin");
     };
 
-<<<<<<< HEAD
-    return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
-            {children}
-=======
-    // Dentro do seu AuthProvider
-    const fetchUserData = async (email: string) => {
-        try {
-            const res = await fetch(`/api/user/profile?email=${email}`);
-            const data = await res.json();
-            if (res.ok) {
-            // Aqui você atualiza o estado do usuário com os dados REAIS do banco
-            setUser({
-                id: data.id,
-                name: data.nome,
-                lastName: data.sobrenome,
-                email: data.email,
-                telefone: data.telefone,
-                cnpj: data.cnpj,
-                profile_photo: data.profile_photo,
-                rua: data.rua,
-                numero: data.numero,
-                bairro: data.bairro,
-                cep: data.cep,
-                cidade: data.cidade,
-                estado: data.estado,
-                pais: data.pais,
-            });
-            }
-        } catch (error) {
-            console.error("Erro ao carregar dados do banco:", error);
+    const refreshUser = async () => {
+        if (user?.email) {
+            await fetchUserData(user.email);
         }
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
-        {children}
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
+        <AuthContext.Provider value={{ user, login, logout, loading, refreshUser }}>
+            {children}
         </AuthContext.Provider>
     );
 };
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
-    if (!context) throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+    if (!context) {
+        throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+    }
     return context;
 };
