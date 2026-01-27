@@ -7,7 +7,7 @@ import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     nome: "",
@@ -25,13 +25,7 @@ export default function ProfilePage() {
     cep: "",
   });
 
-<<<<<<< HEAD
-  /**
-   * Sincroniza o formulário sempre que o objeto 'user' no AuthContext mudar.
-   * Isso garante que, após a busca no MySQL, os campos sejam preenchidos.
-   */
-=======
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
+  // Sincroniza o formulário sempre que o objeto 'user' no AuthContext mudar.
   useEffect(() => {
     if (user) {
       setFormData({
@@ -40,11 +34,6 @@ export default function ProfilePage() {
         email: user.email || "",
         telefone: user.telefone || "",
         cnpj: user.cnpj || "",
-<<<<<<< HEAD
-        // Fallback para a imagem padrão se não houver foto no banco
-=======
-        // Se não tiver foto no banco, usa a default de public/images/user.png
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
         profile_photo: user.profile_photo || "/images/user.png",
         pais: user.pais || "Brasil",
         estado: user.estado || "",
@@ -71,7 +60,6 @@ export default function ProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-<<<<<<< HEAD
 
     try {
         const response = await fetch("/api/user/update", {
@@ -84,14 +72,12 @@ export default function ProfilePage() {
 
         if (response.ok) {
             alert("Perfil atualizado com sucesso!");
-            // Recarrega para garantir que o AuthContext e o localStorage 
-            // sejam atualizados com os novos dados salvos.
-            window.location.reload(); 
+            // Atualiza o contexto global para refletir as mudanças sem precisar de F5
+            if (refreshUser) await refreshUser();
         } else {
             alert(result.error || "Erro ao salvar os dados.");
         }
-    } catch (error) {
-        console.error("Erro na requisição:", error);
+    } catch {
         alert("Erro de conexão com o servidor.");
     } finally {
         setLoading(false);
@@ -99,35 +85,18 @@ export default function ProfilePage() {
   };
 
   return (
-=======
-    // Aqui você enviará o formData (incluindo a string da foto) para sua API
-    console.log("Dados para salvar:", formData);
-    setTimeout(() => setLoading(false), 1000);
-  };
-
-  return (
-    // Reduzido p-4 md:p-6 para p-2 md:p-4 para diminuir o recuo externo
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
     <div className="mx-auto max-w-screen-2xl p-2 md:p-4">
       <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
         <form onSubmit={handleSubmit} className="space-y-8">
           
-<<<<<<< HEAD
-          {/* HEADER COM FOTO E MAPEAMENTO DE NOMES */}
-=======
-          {/* HEADER COM FOTO DEFAULT */}
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
+          {/* HEADER COM FOTO */}
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center pb-6 border-b border-gray-100 dark:border-gray-800">
             <div className="relative w-28 h-28 overflow-hidden border border-gray-200 rounded-full group mx-auto lg:mx-0">
               <Image
                 src={formData.profile_photo || "/images/user.png"}
                 alt="Perfil"
                 fill
-<<<<<<< HEAD
-                // Resolve o aviso de 'missing sizes'
                 sizes="(max-width: 768px) 100vw, 112px"
-=======
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
                 className="object-cover"
                 priority
               />
@@ -148,7 +117,6 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label>Nome</Label>
-<<<<<<< HEAD
               <Input 
                 value={formData.nome} 
                 onChange={(e) => setFormData({...formData, nome: e.target.value})} 
@@ -160,13 +128,6 @@ export default function ProfilePage() {
                 value={formData.sobrenome} 
                 onChange={(e) => setFormData({...formData, sobrenome: e.target.value})} 
               />
-=======
-              <Input value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} />
-            </div>
-            <div>
-              <Label>Sobrenome</Label>
-              <Input value={formData.sobrenome} onChange={(e) => setFormData({...formData, sobrenome: e.target.value})} />
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
             </div>
             <div>
               <Label>E-mail</Label>
@@ -174,7 +135,6 @@ export default function ProfilePage() {
             </div>
             <div>
               <Label>Telefone</Label>
-<<<<<<< HEAD
               <Input 
                 value={formData.telefone} 
                 onChange={(e) => setFormData({...formData, telefone: e.target.value})} 
@@ -188,13 +148,6 @@ export default function ProfilePage() {
                 onChange={(e) => setFormData({...formData, cnpj: e.target.value})} 
                 placeholder="00.000.000/0001-00" 
               />
-=======
-              <Input value={formData.telefone} onChange={(e) => setFormData({...formData, telefone: e.target.value})} placeholder="(00) 00000-0000" />
-            </div>
-            <div className="md:col-span-2">
-              <Label>CNPJ</Label>
-              <Input value={formData.cnpj} onChange={(e) => setFormData({...formData, cnpj: e.target.value})} placeholder="00.000.000/0001-00" />
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
             </div>
           </div>
 
@@ -202,40 +155,6 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-gray-100 pt-6 dark:border-gray-800">
             <div className="md:col-span-2">
               <Label>Rua</Label>
-<<<<<<< HEAD
-              <Input 
-                value={formData.rua} 
-                onChange={(e) => setFormData({...formData, rua: e.target.value})} 
-              />
-            </div>
-            <div>
-              <Label>Número</Label>
-              <Input 
-                value={formData.numero} 
-                onChange={(e) => setFormData({...formData, numero: e.target.value})} 
-              />
-            </div>
-            <div>
-              <Label>Bairro</Label>
-              <Input 
-                value={formData.bairro} 
-                onChange={(e) => setFormData({...formData, bairro: e.target.value})} 
-              />
-            </div>
-            <div>
-              <Label>CEP</Label>
-              <Input 
-                value={formData.cep} 
-                onChange={(e) => setFormData({...formData, cep: e.target.value})} 
-              />
-            </div>
-            <div>
-              <Label>Cidade</Label>
-              <Input 
-                value={formData.cidade} 
-                onChange={(e) => setFormData({...formData, cidade: e.target.value})} 
-              />
-=======
               <Input value={formData.rua} onChange={(e) => setFormData({...formData, rua: e.target.value})} />
             </div>
             <div>
@@ -253,7 +172,6 @@ export default function ProfilePage() {
             <div>
               <Label>Cidade</Label>
               <Input value={formData.cidade} onChange={(e) => setFormData({...formData, cidade: e.target.value})} />
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
             </div>
           </div>
 

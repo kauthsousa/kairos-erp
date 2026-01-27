@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-<<<<<<< HEAD
 import { query } from "@/lib/db";
 
 interface UserData {
@@ -17,17 +16,10 @@ interface UserData {
     cidade?: string;
     estado?: string;
     pais?: string;
-    }
-
-    export async function GET(request: Request) {
-    try {
-=======
-import mysql from "mysql2/promise";
+}
 
 export async function GET(request: Request) {
     try {
-        // Pegue o email dos parâmetros da URL ou da sua sessão de auth
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
         const { searchParams } = new URL(request.url);
         const email = searchParams.get("email");
 
@@ -35,28 +27,30 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "Email não fornecido" }, { status: 400 });
         }
 
-<<<<<<< HEAD
-        // Executa a query usando a função que já funciona no seu login
+        // Adicionamos um log para depurar no terminal do VS Code
+        console.log(`Buscando perfil para: ${email}`);
+
         const results = await query({
         query: "SELECT * FROM users WHERE email = ?",
         values: [email],
-        }) as UserData[];
+        });
 
-        if (results.length === 0) {
+        // Verificação de segurança: se results não for um array ou estiver vazio
+        if (!Array.isArray(results) || results.length === 0) {
         return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
         }
 
-        const dbUser = results[0];
+        const dbUser = results[0] as UserData;
 
-        // Retorna os dados mapeados para o frontend
+        // Retorno com tratamento de nulos para evitar quebras no frontend
         return NextResponse.json({
-        id: dbUser.id.toString(),
-        nome: dbUser.nome,
-        sobrenome: dbUser.sobrenome || "", // Garante que o sobrenome seja enviado
+        id: String(dbUser.id), // Garantindo conversão para string
+        nome: dbUser.nome || "",
+        sobrenome: dbUser.sobrenome || "",
         email: dbUser.email,
         telefone: dbUser.telefone || "",
         cnpj: dbUser.cnpj || "",
-        profile_photo: dbUser.profile_photo || "",
+        profile_photo: dbUser.profile_photo || "/images/user/owner.jpg",
         rua: dbUser.rua || "",
         numero: dbUser.numero || "",
         bairro: dbUser.bairro || "",
@@ -65,33 +59,15 @@ export async function GET(request: Request) {
         estado: dbUser.estado || "",
         pais: dbUser.pais || "Brasil",
         });
+        
     } catch (error: unknown) {
-        // Tratamento de erro robusto sem usar 'any'
-        const errorMessage = error instanceof Error ? error.message : "Erro interno no servidor";
-        return NextResponse.json({ error: errorMessage }, { status: 500 });
-=======
-        const connection = await mysql.createConnection({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        });
-
-        // Seleciona todos os campos necessários
-        const [rows]: any = await connection.execute(
-        "SELECT nome, sobrenome, email, telefone, cnpj, profile_photo, rua, numero, bairro, cep, cidade, estado, pais FROM users WHERE email = ?",
-        [email]
-        );
-
-        await connection.end();
-
-        if (rows.length === 0) {
-        return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+        // Log detalhado para você ver o erro real no terminal
+        console.error("ERRO CRÍTICO NA API DE PERFIL:", error);
+        
+        const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+        return NextResponse.json(
+            { error: "Erro interno no servidor", details: errorMessage }, 
+            { status: 500 }
+            );
         }
-
-        return NextResponse.json(rows[0]);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
->>>>>>> fac219cd88042150cf375520ed85a8baec694f27
-    }
 }

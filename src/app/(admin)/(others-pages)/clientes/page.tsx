@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react"; // [1] Importado useCallback
 import PageBreadcrumb from "../../../../components/common/PageBreadCrumb";
 import Link from "next/link";
 import Image from "next/image";
-import { useAuth } from "@/context/AuthContext"; // Certifique-se que o caminho está correto
+import { useAuth } from "@/context/AuthContext";
 
 interface Cliente {
     id: number;
@@ -20,8 +20,8 @@ const ClientesPage = () => {
     const [exibirModal, setExibirModal] = useState(false);
     const [clienteParaExcluir, setClienteParaExcluir] = useState<Cliente | null>(null);
 
-    // Função para buscar dados do MySQL filtrando pelo ID do usuário
-    const carregarClientes = async () => {
+    // [2] Função envolvida em useCallback para estabilizar a referência
+    const carregarClientes = useCallback(async () => {
         if (!user?.id) return;
         
         try {
@@ -32,18 +32,16 @@ const ClientesPage = () => {
                 setClientes(Array.isArray(data) ? data : []);
             }
         } catch {
-            // Removido o 'error' não utilizado para evitar o erro do ESLint
             console.error("Erro ao carregar clientes");
         } finally {
             setLoading(false);
         }
-    };
+    }, [user?.id]); // A função só muda se o ID do usuário mudar
 
+    // [3] useEffect agora tem carregarClientes como dependência estável
     useEffect(() => {
-        if (user?.id) {
-            carregarClientes();
-        }
-    }, [user]);
+        carregarClientes();
+    }, [carregarClientes]); 
 
     const confirmarExclusao = (cliente: Cliente) => {
         setClienteParaExcluir(cliente);
@@ -60,12 +58,11 @@ const ClientesPage = () => {
 
             if (res.ok) {
                 setExibirModal(false);
-                carregarClientes(); // Recarrega a lista após excluir
+                carregarClientes(); 
             } else {
                 alert("Erro ao excluir o cliente.");
             }
         } catch {
-            // Corrigido: catch sem variável para evitar erro 'error is defined but never used'
             alert("Erro de conexão ao tentar excluir.");
         }
     };
@@ -98,9 +95,9 @@ const ClientesPage = () => {
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan={4} className="text-center py-10">Carregando clientes...</td></tr>
+                                    <tr><td colSpan={4} className="text-center py-10 text-dark dark:text-white">Carregando clientes...</td></tr>
                                 ) : clientes.length === 0 ? (
-                                    <tr><td colSpan={4} className="text-center py-10">Nenhum cliente encontrado.</td></tr>
+                                    <tr><td colSpan={4} className="text-center py-10 text-dark dark:text-white">Nenhum cliente encontrado.</td></tr>
                                 ) : (
                                     clientes.map((cliente) => (
                                         <tr key={cliente.id}>
@@ -135,12 +132,11 @@ const ClientesPage = () => {
                 </div>
             </div>
 
-            {/* Modal de Exclusão */}
             {exibirModal && (
                 <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 px-4">
                     <div className="w-full max-w-[400px] rounded-lg bg-white p-6 text-center dark:bg-gray-dark shadow-xl">
                         <h3 className="mb-2 text-xl font-bold text-dark dark:text-white">Confirmar Exclusão</h3>
-                        <p className="mb-6 text-sm text-gray-500">
+                        <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
                             Tem certeza que deseja excluir o cliente <strong>{clienteParaExcluir?.nome}</strong>?
                         </p>
                         <div className="flex gap-3">
